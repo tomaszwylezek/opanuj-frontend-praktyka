@@ -1,14 +1,22 @@
-import React, { useState } from 'react';
-import { f1, f2, f3, f4 } from './functions';
+import React, { useMemo, useState } from 'react';
+import { add, substract, multiply, divide } from './functions';
+import { Button } from './Button';
+
+type CalculationFn = (a: number, b: number) => number;
 
 const App = () => {
-  const [numA, setNumA] = useState<number>(0);
-  const [numB, setNumB] = useState<number>(0);
-  const [numC, setNumC] = useState<number | string>(0);
+  const [firstNumber, setFirstNumber] = useState<number>(0);
+  const [secondNumber, setSecondNumber] = useState<number>(0);
+  const [result, setResult] = useState<number | string>(0);
 
-  const doWork = (func: (a: number, b: number) => number) => {
-    setNumC(func(numA, numB));
+  const executeCalculation = (calculationFn: CalculationFn) => {
+    setResult(calculationFn(firstNumber, secondNumber));
   };
+
+  const incorrectInput = useMemo(() => {
+    // some validation in case of incorrect input, below is just an example
+    return Number.isNaN(firstNumber) || Number.isNaN(secondNumber);
+  }, [firstNumber, secondNumber]);
 
   return (
     <div>
@@ -16,43 +24,46 @@ const App = () => {
         <input
           type="number"
           className="rounded-md shadow-md p-4"
-          value={numA}
-          onChange={(e) => setNumA(parseFloat(e.target.value))}
+          value={firstNumber}
+          onChange={(e) => setFirstNumber(parseFloat(e.target.value))}
         />
         <input
           type="number"
           className="rounded-md shadow-md p-4"
-          value={numB}
-          onChange={(e) => setNumB(parseFloat(e.target.value))}
+          value={secondNumber}
+          onChange={(e) => setSecondNumber(parseFloat(e.target.value))}
         />
       </div>
       <div className="grid grid-cols-4 gap-x-4 my-4">
-        <button
-          className="bg-blue-200 px-2 py-4 text-lg hover:bg-blue-500 hover:text-white rounded-md"
-          onClick={() => doWork(f1)}
+        <Button
+          disabled={incorrectInput}
+          onClick={() => executeCalculation(add)}
         >
           +
-        </button>
-        <button
-          className="bg-blue-200 px-2 py-4 text-lg hover:bg-blue-500 hover:text-white rounded-md"
-          onClick={() => doWork(f2)}
+        </Button>
+        <Button
+          disabled={incorrectInput}
+          onClick={() => executeCalculation(substract)}
         >
           -
-        </button>
-        <button
-          className="bg-blue-200 px-2 py-4 text-lg hover:bg-blue-500 hover:text-white rounded-md"
-          onClick={() => doWork(f3)}
+        </Button>
+        <Button
+          disabled={incorrectInput}
+          onClick={() => executeCalculation(multiply)}
         >
           *
-        </button>
-        <button
-          className="bg-blue-200 px-2 py-4 text-lg hover:bg-blue-500 hover:text-white rounded-md"
-          onClick={() => doWork(f4)}
+        </Button>
+        <Button
+          disabled={incorrectInput}
+          onClick={() => executeCalculation(divide)}
         >
           /
-        </button>
+        </Button>
       </div>
-      <div>Result: {numC}</div>
+      <div>Result: {result}</div>
+      {incorrectInput && (
+        <div className="text-red-500">Please enter a valid number</div>
+      )}
     </div>
   );
 };
